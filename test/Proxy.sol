@@ -29,8 +29,8 @@ contract Proxy {
         return eventTickets;
     }
 
-    function buyTickets(uint ticketsNumber) public payable returns (bool, bytes memory){
-        (bool success, bytes memory ticketsBought) = address(eventTickets).call(abi.encodeWithSignature("buyTickets(uint256 ticketsNumber)", ticketsNumber));
+    function buyTickets(uint value, uint ticketsNumber) public payable returns (bool, bytes memory){
+        (bool success, bytes memory ticketsBought) = address(eventTickets).call.value(value)(abi.encodeWithSignature("buyTickets(uint256 ticketsNumber)", ticketsNumber));
         return (success, ticketsBought);
     }
 

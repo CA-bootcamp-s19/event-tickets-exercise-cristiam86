@@ -6,9 +6,11 @@ import "../contracts/EventTickets.sol";
 import "./Proxy.sol";
 
 contract TestEventTickets {
-  string _description = 'book';
-  string _url = 'website';
-  uint _totalTickets = 10;
+  uint public initialBalance = 1 ether;
+  string description = 'book';
+  string url = 'website';
+  uint totalTickets = 10;
+  uint TICKET_PRICE = 100 wei;
 
   // address buyer = 0xCdABc2bcb262A2aaDdD01de1f7710C6E2F50AC12;
 
@@ -22,20 +24,22 @@ contract TestEventTickets {
   function beforeEach() public
   {
     // Contract to test
-    eventTickets = new EventTickets(_description, _url, _totalTickets);
+    eventTickets = new EventTickets(description, url, totalTickets);
     ticketsBuyer = new Proxy(eventTickets);
-    (bool success, bytes memory ticketsBought) = ticketsBuyer.buyTickets(5);
+    address(ticketsBuyer).transfer(500 wei);
+
+    (bool success, bytes memory ticketsBought) = ticketsBuyer.buyTickets(500 wei, 5);
     emit ConsoleLog(ticketsBought);
     Assert.isTrue(success, "Buyer should have bought 5 tickets");
   }
 
   function testReadEvent() public  {
-    (string memory description, string memory url, uint totalTickets, uint sales, bool isOpen) = eventTickets.readEvent();
-    Assert.isTrue(keccak256(abi.encodePacked(description)) == keccak256(abi.encodePacked(_description)), "event not initialized properly");
-    Assert.isTrue(keccak256(abi.encodePacked(url)) == keccak256(abi.encodePacked(_url)), "event not initialized properly");
-    Assert.isTrue(totalTickets == _totalTickets, "event not initialized properly");
-    Assert.isTrue(sales == 0, "event not initialized properly");
-    Assert.isTrue(isOpen == true, "event not initialized properly");
+    (string memory eventDescription, string memory eventUrl, uint eventTotalTickets, uint eventSales, bool eventIsOpen) = eventTickets.readEvent();
+    Assert.isTrue(keccak256(abi.encodePacked(eventDescription)) == keccak256(abi.encodePacked(description)), "event not initialized properly");
+    Assert.isTrue(keccak256(abi.encodePacked(eventUrl)) == keccak256(abi.encodePacked(url)), "event not initialized properly");
+    Assert.isTrue(eventTotalTickets == totalTickets, "event not initialized properly");
+    Assert.isTrue(eventSales == 0, "event not initialized properly");
+    Assert.isTrue(eventIsOpen == true, "event not initialized properly");
   }
 
   function testGetBuyerTicketCount() public {
