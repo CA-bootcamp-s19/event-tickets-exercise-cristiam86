@@ -29,46 +29,20 @@ contract Proxy {
         return eventTickets;
     }
 
-    function buyTickets(uint value, uint ticketsNumber) public payable returns (bool, bytes memory){
-        (bool success, bytes memory ticketsBought) = address(eventTickets).call.value(value)(abi.encodeWithSignature("buyTickets(uint256 ticketsNumber)", ticketsNumber));
+    function buyTickets(uint value, uint ticketsNumber) public payable returns (bool, uint){
+        (bool success, bytes memory returnedData) =
+            address(eventTickets).call.value(value)(abi.encodeWithSignature("buyTickets(uint256)", ticketsNumber));
+
+        // Convert `returnedData` using `abi.decode`
+        //
+        // See https://solidity.readthedocs.io/en/v0.5.3/units-and-global-variables.html#abi-encoding-and-decoding-functions
+        //
+        (uint ticketsBought) = abi.decode(returnedData, (uint));
         return (success, ticketsBought);
     }
 
-   
-/*
-    /// @notice Purchase an item
-    /// @param sku item Sku
-    /// @param offer the price you pay
-    function purchaseItem(uint256 sku, uint256 offer)
-        public
-        returns (bool)
-    {
-        /// Use call.value to invoke `eventTickets.buyItem(sku)` with msg.sender
-        /// set to the address of this proxy and value is set to `offer`
-        (bool success, bytes memory returnedData) = address(eventTickets).call.value(offer)(abi.encodeWithSignature("buyItem(uint256)", sku));
-        return returnedData;
-    }
-
-    /// @notice Ship an item
-    /// @param sku item Sku
-    function shipItem(uint256 sku)
-        public
-        returns (bool)
-    {
-        /// invoke `eventTickets.shipItem(sku)` with msg.sender set to the address of this proxy
-        (bool success, ) = address(eventTickets).call(abi.encodeWithSignature("shipItem(uint256)", sku));
+    function getRefund() public returns (bool) {
+        (bool success, ) = address(eventTickets).call(abi.encodeWithSignature("getRefund()"));
         return success;
     }
-
-    /// @notice Receive an item
-    /// @param sku item Sku
-    function receiveItem(uint256 sku)
-        public
-        returns (bool)
-    {
-        /// invoke `receiveChain.shipItem(sku)` with msg.sender set to the address of this proxy
-        (bool success, ) = address(eventTickets).call(abi.encodeWithSignature("receiveItem(uint256)", sku));
-        return success;
-    }
-    */
 }
